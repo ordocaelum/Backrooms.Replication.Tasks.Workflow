@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BP_Task_Item_Base — Backrooms Task Replication</title>
+  <style>
+    :root {
+      --bg:      #0d0d0d;
+      --surface: #161616;
+      --border:  #2a2a2a;
+      --text:    #e0e0e0;
+      --muted:   #888;
+      --gs:      #3b82f6;
+      --gm:      #22c55e;
+      --ps:      #f97316;
+      --ui:      #a855f7;
+      --task:    #ef4444;
+      --pc:      #eab308;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 15px; line-height: 1.6; }
+    nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; gap: 1.5rem; height: 52px; position: sticky; top: 0; z-index: 100; flex-wrap: wrap; }
+    nav .logo { font-weight: 700; font-size: 1rem; color: var(--gs); letter-spacing: .03em; white-space: nowrap; }
+    nav a { color: var(--muted); text-decoration: none; font-size: .85rem; padding: 4px 10px; border-radius: 6px; transition: background .15s, color .15s; white-space: nowrap; }
+    nav a:hover, nav a.active { background: #1e293b; color: var(--text); }
+    nav a.active { color: var(--gs); }
+    .page { max-width: 1060px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h1 { font-size: 2rem; margin-bottom: .4rem; }
+    h2 { font-size: 1.35rem; margin: 2.2rem 0 .7rem; color: var(--gs); }
+    h3 { font-size: 1.05rem; margin: 1.4rem 0 .4rem; color: #94a3b8; }
+    p  { margin-bottom: .8rem; color: #c0c0c0; }
+    ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+    li { margin-bottom: .3rem; color: #c0c0c0; }
+    strong { color: var(--text); }
+    .subtitle { color: var(--muted); font-size: 1rem; margin-bottom: 2rem; }
+    .callout { background: var(--surface); border-left: 4px solid var(--gs); border-radius: 0 8px 8px 0; padding: 1rem 1.2rem; margin: 1.2rem 0; }
+    .callout.warn { border-color: var(--ps); }
+    .callout.success { border-color: var(--gm); }
+    .callout .label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; color: var(--gs); }
+    .callout.warn .label { color: var(--ps); }
+    .callout.success .label { color: var(--gm); }
+    .diagram-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; }
+    .diagram-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+    code { background: #1e1e1e; border: 1px solid #333; border-radius: 4px; padding: 1px 6px; font-size: .88em; color: #93c5fd; font-family: 'Consolas', 'Fira Mono', monospace; }
+    pre { background: #111; border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; overflow-x: auto; margin: 1rem 0; }
+    pre code { background: none; border: none; padding: 0; color: #93c5fd; font-size: .85rem; }
+    .badge { display: inline-block; font-size: .7rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: .07em; vertical-align: middle; }
+    .badge-gs   { background: #1e3a5f; color: var(--gs); }
+    .badge-gm   { background: #14532d; color: var(--gm); }
+    .badge-ps   { background: #431407; color: var(--ps); }
+    .badge-ui   { background: #3b0764; color: var(--ui); }
+    .badge-task { background: #450a0a; color: var(--task); }
+    .badge-pc   { background: #422006; color: var(--pc); }
+    .gs { color: var(--gs); } .gm { color: var(--gm); } .ps { color: var(--ps); } .task { color: var(--task); } .pc { color: var(--pc); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .88rem; }
+    th { background: #1a1a1a; color: var(--muted); font-weight: 600; text-align: left; padding: .55rem .8rem; border-bottom: 1px solid var(--border); }
+    td { padding: .5rem .8rem; border-bottom: 1px solid #1e1e1e; vertical-align: top; }
+    tr:hover td { background: #111; }
+    .step { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #1e3a5f; color: var(--gs); font-weight: 700; font-size: .9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+    .step-body p { margin: 0; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">⬛ Backrooms Task Replication</span>
+  <a href="../task-replication-workflow.html">Overview</a>
+  <a href="gamestate-task-logic.html">GameState Logic</a>
+  <a href="widget-ui-path.html">Widget / UI</a>
+  <a href="task-item-base.html" class="active">Task Item Base</a>
+  <a href="inter-blueprint-call-map.html">Call Map</a>
+</nav>
+
+<div class="page">
+
+  <h1>BP_Task_Item_Base</h1>
+  <p class="subtitle"><span class="badge badge-task">In-World Actor</span> &nbsp;— interaction detection &amp; RPC bridging</p>
+
+  <div class="callout">
+    <div class="label">Role in New Architecture</div>
+    <code>BP_Task_Item_Base</code> is responsible for <strong>detecting the interaction</strong> and
+    <strong>bridging to the server</strong>. It does <em>not</em> own any authoritative task state.
+    All persistent progress lives in <span class="gs">BP_GS_Gameplay</span>.
+  </div>
+
+  <!-- ── INTERACTION FLOW DIAGRAM ── -->
+  <h2>Full Interaction Flow</h2>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 860 560" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+      <defs>
+        <marker id="ah" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker>
+        <marker id="ah-g" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#22c55e"/></marker>
+        <marker id="ah-y" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#eab308"/></marker>
+        <marker id="ah-r" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#ef4444"/></marker>
+        <marker id="ah-p" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#a855f7"/></marker>
+      </defs>
+
+      <!-- CLIENT SIDE label -->
+      <rect x="10" y="10" width="380" height="510" rx="10" fill="none" stroke="#2e1065" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="25" y="30" fill="#7c3aed" font-size="11" font-weight="600" opacity=".7">CLIENT</text>
+
+      <!-- SERVER SIDE label -->
+      <rect x="410" y="10" width="430" height="510" rx="10" fill="none" stroke="#1e3a5f" stroke-width="1.2" stroke-dasharray="5 4"/>
+      <text x="425" y="30" fill="#3b82f6" font-size="11" font-weight="600" opacity=".7">SERVER</text>
+
+      <!-- Step 1 — Event Interact -->
+      <rect x="30" y="50" width="200" height="55" rx="8" fill="#200a0a" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="130" y="73" fill="#ef4444" text-anchor="middle" font-weight="700">BP_Task_Item_Base</text>
+      <text x="130" y="89" fill="#ccc" text-anchor="middle" font-size="11">Event Interact (client fires)</text>
+
+      <!-- Step 2 — Branch / FlipFlop -->
+      <rect x="30" y="145" width="200" height="55" rx="8" fill="#111" stroke="#444"/>
+      <text x="130" y="168" fill="#aaa" text-anchor="middle" font-weight="600">Branch / FlipFlop</text>
+      <text x="130" y="184" fill="#777" text-anchor="middle" font-size="11">Check local interact validity</text>
+
+      <!-- Step 3 — Optional local feedback -->
+      <rect x="250" y="145" width="130" height="55" rx="8" fill="#1a0a2e" stroke="#a855f7" stroke-width="1"/>
+      <text x="315" y="164" fill="#c084fc" text-anchor="middle" font-size="12">Local Feedback</text>
+      <text x="315" y="180" fill="#ccc" text-anchor="middle" font-size="11">Sound / FX / Anim</text>
+      <text x="315" y="194" fill="#888" text-anchor="middle" font-size="10">(optional, client-only)</text>
+
+      <!-- Step 4 — Get Player State / RPC -->
+      <rect x="30" y="250" width="200" height="55" rx="8" fill="#1a0e00" stroke="#f97316" stroke-width="1.5"/>
+      <text x="130" y="273" fill="#f97316" text-anchor="middle" font-weight="700">BP_PS_Gameplay</text>
+      <text x="130" y="289" fill="#ccc" text-anchor="middle" font-size="11">Call Server_ReportTaskCompleted</text>
+
+      <!-- Network arrow -->
+      <text x="205" y="355" fill="#3b82f6" font-size="11" font-weight="600">RPC ›› Server</text>
+      <line x1="195" y1="345" x2="408" y2="345" stroke="#eab308" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ah-y)"/>
+
+      <!-- Step 5 — Server receives RPC -->
+      <rect x="430" y="50" width="200" height="55" rx="8" fill="#1a0e00" stroke="#f97316" stroke-width="1.5"/>
+      <text x="530" y="73" fill="#f97316" text-anchor="middle" font-weight="700">BP_PS_Gameplay</text>
+      <text x="530" y="89" fill="#ccc" text-anchor="middle" font-size="11">Server_ReportTaskCompleted runs</text>
+
+      <!-- Step 6 — Call GameMode -->
+      <rect x="430" y="145" width="200" height="55" rx="8" fill="#0a1a0e" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="530" y="168" fill="#22c55e" text-anchor="middle" font-weight="700">BP_GM_Gameplay</text>
+      <text x="530" y="184" fill="#ccc" text-anchor="middle" font-size="11">OnTaskCompleted(TaskID)</text>
+
+      <!-- Step 7 — Dedup guard -->
+      <rect x="660" y="145" width="160" height="55" rx="8" fill="#111" stroke="#444"/>
+      <text x="740" y="168" fill="#aaa" text-anchor="middle" font-weight="600">Already complete?</text>
+      <text x="740" y="184" fill="#777" text-anchor="middle" font-size="11">Contains check → Return</text>
+
+      <!-- Step 8 — Write to GS -->
+      <rect x="430" y="250" width="200" height="65" rx="8" fill="#0a1929" stroke="#3b82f6" stroke-width="2"/>
+      <text x="530" y="273" fill="#3b82f6" text-anchor="middle" font-weight="700">BP_GS_Gameplay</text>
+      <text x="530" y="289" fill="#ccc" text-anchor="middle" font-size="11">Add to GloballyCompletedTaskIDs</text>
+      <text x="530" y="305" fill="#ccc" text-anchor="middle" font-size="11">Update TaskProgressMap</text>
+
+      <!-- Step 9 — RepNotify -->
+      <rect x="430" y="365" width="200" height="55" rx="8" fill="#0a1929" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="530" y="387" fill="#60a5fa" text-anchor="middle" font-weight="600">OnRep_CompletedTaskIDs</text>
+      <text x="530" y="403" fill="#ccc" text-anchor="middle" font-size="11">Fires on ALL clients</text>
+
+      <!-- Step 10 — UI refresh -->
+      <rect x="430" y="460" width="200" height="45" rx="8" fill="#1a0a2e" stroke="#a855f7" stroke-width="1.5"/>
+      <text x="530" y="480" fill="#a855f7" text-anchor="middle" font-weight="700">All UIs Refresh</text>
+      <text x="530" y="496" fill="#ccc" text-anchor="middle" font-size="11">WBP_Inventory rows updated</text>
+
+      <!-- ARROWS (client side) -->
+      <line x1="130" y1="105" x2="130" y2="143" stroke="#ef4444" stroke-width="1.5" marker-end="url(#ah-r)"/>
+      <line x1="230" y1="173" x2="248" y2="173" stroke="#a855f7" stroke-width="1.2" marker-end="url(#ah-p)" stroke-dasharray="3 3"/>
+      <line x1="130" y1="200" x2="130" y2="248" stroke="#f97316" stroke-width="1.5" marker-end="url(#ah-y)"/>
+      <line x1="130" y1="305" x2="130" y2="335" stroke="#eab308" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+      <!-- ARROWS (server side) -->
+      <line x1="530" y1="105" x2="530" y2="143" stroke="#22c55e" stroke-width="1.5" marker-end="url(#ah-g)"/>
+      <line x1="630" y1="168" x2="658" y2="168" stroke="#22c55e" stroke-width="1.2" marker-end="url(#ah-g)" stroke-dasharray="3 3"/>
+      <line x1="530" y1="200" x2="530" y2="248" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#ah)"/>
+      <line x1="530" y1="315" x2="530" y2="363" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#ah)"/>
+      <line x1="530" y1="420" x2="530" y2="458" stroke="#a855f7" stroke-width="1.5" marker-end="url(#ah-p)"/>
+
+      <!-- Step labels -->
+      <text x="30" y="130" fill="#555" font-size="11">① Client interaction detected</text>
+      <text x="30" y="235" fill="#555" font-size="11">② Validity check passes</text>
+      <text x="30" y="380" fill="#555" font-size="11">③ RPC sent to server</text>
+      <text x="425" y="130" fill="#555" font-size="11">④ RPC received on server</text>
+      <text x="425" y="235" fill="#555" font-size="11">⑤ GameMode notified</text>
+      <text x="425" y="345" fill="#555" font-size="11">⑥ GameState updated</text>
+      <text x="425" y="455" fill="#555" font-size="11">⑦ RepNotify → UI</text>
+    </svg>
+  </div>
+
+  <!-- ── STEP-BY-STEP WRITTEN ── -->
+  <h2>Step-by-Step Walkthrough</h2>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <p>
+        <strong>Event Interact fires on the client.</strong>
+        The player presses the interact key. The interaction event fires on the client that owns
+        the interacting pawn.
+      </p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <p>
+        <strong>FlipFlop / Branch validates the interaction.</strong>
+        The existing <code>FlipFlop</code> or condition node determines whether this is a valid
+        new interaction (e.g., not already interacted, cooldown passed).
+        Optional client-side feedback (sound, particle, animation) can fire here.
+      </p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <p>
+        <strong>Server RPC called on PlayerState.</strong>
+        The client calls <code>Server_ReportTaskCompleted(TaskID)</code> on its own
+        <span class="badge badge-ps">BP_PS_Gameplay</span>.
+        This is a <em>Run on Server / Reliable</em> RPC.
+        Because <code>PlayerState</code> is owned by the client, this RPC is always valid.
+      </p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <p>
+        <strong>Server receives RPC and calls GameMode.</strong>
+        On the server, <code>Server_ReportTaskCompleted</code> runs inside
+        <span class="badge badge-ps">BP_PS_Gameplay</span>.
+        It immediately calls <code>GetGameMode → Cast BP_GM_Gameplay → OnTaskCompleted(TaskID)</code>.
+      </p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <p>
+        <strong>GameMode deduplicates and writes to GameState.</strong>
+        <code>BP_GM_Gameplay.OnTaskCompleted</code> checks
+        <code>GloballyCompletedTaskIDs.Contains(TaskID)</code>. If the task is already done,
+        it returns early. Otherwise it writes the TaskID to GameState and increments the counter.
+      </p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-body">
+      <p>
+        <strong>GameState replicates to all clients.</strong>
+        Because <code>GloballyCompletedTaskIDs</code> is <strong>RepNotify</strong>, Unreal
+        automatically sends the updated array to every connected client and fires
+        <code>OnRep_CompletedTaskIDs</code>.
+      </p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-body">
+      <p>
+        <strong>UI refreshes everywhere.</strong>
+        <code>OnRep_CompletedTaskIDs</code> calls into the HUD / open widgets.
+        Every player's tablet now shows the task as complete — without reopening it.
+      </p>
+    </div>
+  </div>
+
+  <!-- ── IMPORTANT CAVEAT ── -->
+  <h2>⚠ Avoid GetPlayerController(0)</h2>
+
+  <div class="callout warn">
+    <div class="label">Multiplayer Bug — Do Not Use</div>
+    The current task item graph contains a node chain:
+    <code>Get Player Controller (0) → Get Player State → Cast BP_PS_Gameplay</code>.
+    <br/><br/>
+    In a multiplayer game with dedicated server, <strong>Player Controller index 0 on the server
+    is not the interacting player</strong> — it is whichever client happened to be first.
+    This will cause task progress to be attributed to the wrong player.
+    <br/><br/>
+    Instead, use the <strong>Player That Interacts</strong> reference passed by the interaction
+    event, and call <code>GetPlayerState</code> on that pawn's controller.
+  </div>
+
+  <pre><code>// WRONG — do not use in multiplayer
+Get Player Controller (0)
+  → Get Player State
+  → Cast to BP_PS_Gameplay
+  → Call Server_ReportTaskCompleted(TaskID)
+
+// CORRECT
+Player That Interacts (from Event Interact)
+  → Get Controller
+  → Get Player State
+  → Cast to BP_PS_Gameplay
+  → Call Server_ReportTaskCompleted(TaskID)</code></pre>
+
+  <!-- ── VARIABLES OWNED BY TASK ITEM ── -->
+  <h2>Variables to Keep in BP_Task_Item_Base</h2>
+
+  <table>
+    <thead>
+      <tr><th>Variable</th><th>Type</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>TaskID</code></td>
+        <td>Name</td>
+        <td>Unique identifier for this task. Must match the key used in GameState maps.</td>
+      </tr>
+      <tr>
+        <td><code>bInteracted</code></td>
+        <td>Boolean</td>
+        <td>Local guard to prevent re-triggering interaction events. Does not need replication.</td>
+      </tr>
+      <tr>
+        <td><code>InteractCooldown</code></td>
+        <td>Float</td>
+        <td>Optional cooldown between interactions (e.g., for multi-step tasks).</td>
+      </tr>
+      <tr>
+        <td><code>RequiredInteractions</code></td>
+        <td>Integer</td>
+        <td>Goal value fed into <code>GameState.TaskGoalMap</code> on server BeginPlay.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout success">
+    <div class="label">Good Practice</div>
+    During server BeginPlay (or <code>OnRegisterTask</code>), each <code>BP_Task_Item_Base</code>
+    should register itself with the server GameState — passing its <code>TaskID</code> and
+    <code>RequiredInteractions</code> to populate <code>TaskGoalMap</code>.
+    GameMode can handle this registration in its <code>BeginPlay</code> via
+    <code>Get All Actors Of Class → For Each → GameState.RegisterTask(Actor)</code>.
+  </div>
+
+  <hr/>
+  <p style="text-align:center">
+    <a href="widget-ui-path.html" style="color:var(--muted)">← Widget / UI Path</a>
+    &nbsp;&nbsp;
+    <a href="inter-blueprint-call-map.html" style="color:var(--gs)">Next: Inter-Blueprint Call Map →</a>
+  </p>
+
+</div>
+</body>
+</html>
