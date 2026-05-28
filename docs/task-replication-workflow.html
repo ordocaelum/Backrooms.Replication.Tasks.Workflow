@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Backrooms Task Replication — Workflow Overview</title>
+  <style>
+    :root {
+      --bg:         #0d0d0d;
+      --surface:    #161616;
+      --border:     #2a2a2a;
+      --text:       #e0e0e0;
+      --muted:      #888;
+      --gs:         #3b82f6;   /* GameState  — blue  */
+      --gm:         #22c55e;   /* GameMode   — green */
+      --ps:         #f97316;   /* PlayerState — orange (legacy) */
+      --ui:         #a855f7;   /* Widget/UI   — purple */
+      --task:       #ef4444;   /* TaskItem    — red   */
+      --pc:         #eab308;   /* PlayerController — yellow */
+      --accent:     #3b82f6;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+    }
+    nav .logo { font-weight: 700; font-size: 1rem; color: var(--gs); letter-spacing: .03em; white-space: nowrap; }
+    nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .85rem;
+      padding: 4px 10px;
+      border-radius: 6px;
+      transition: background .15s, color .15s;
+      white-space: nowrap;
+    }
+    nav a:hover, nav a.active { background: #1e293b; color: var(--text); }
+    nav a.active { color: var(--gs); }
+
+    /* ── LAYOUT ── */
+    .page { max-width: 1060px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h1 { font-size: 2rem; margin-bottom: .4rem; }
+    h2 { font-size: 1.35rem; margin: 2.2rem 0 .7rem; color: var(--gs); }
+    h3 { font-size: 1.05rem; margin: 1.4rem 0 .4rem; color: #94a3b8; }
+    p  { margin-bottom: .8rem; color: #c0c0c0; }
+    ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+    li { margin-bottom: .3rem; color: #c0c0c0; }
+    strong { color: var(--text); }
+
+    .subtitle { color: var(--muted); font-size: 1rem; margin-bottom: 2rem; }
+
+    /* ── CARDS ── */
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin: 1.5rem 0; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.2rem;
+      transition: border-color .15s, transform .1s;
+      text-decoration: none;
+    }
+    .card:hover { border-color: var(--gs); transform: translateY(-2px); }
+    .card .tag {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      padding: 2px 8px;
+      border-radius: 4px;
+      margin-bottom: .5rem;
+    }
+    .card h4 { font-size: .95rem; color: var(--text); margin-bottom: .3rem; }
+    .card p  { font-size: .82rem; margin: 0; }
+
+    /* ── BADGE COLOR HELPERS ── */
+    .gs { color: var(--gs); }
+    .gm { color: var(--gm); }
+    .ps { color: var(--ps); }
+    .ui { color: var(--ui); }
+    .task { color: var(--task); }
+    .pc  { color: var(--pc); }
+
+    .badge {
+      display: inline-block;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      vertical-align: middle;
+    }
+    .badge-gs   { background: #1e3a5f; color: var(--gs); }
+    .badge-gm   { background: #14532d; color: var(--gm); }
+    .badge-ps   { background: #431407; color: var(--ps); }
+    .badge-ui   { background: #3b0764; color: var(--ui); }
+    .badge-task { background: #450a0a; color: var(--task); }
+    .badge-pc   { background: #422006; color: var(--pc); }
+
+    /* ── CALLOUT ── */
+    .callout {
+      background: var(--surface);
+      border-left: 4px solid var(--gs);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.2rem;
+      margin: 1.2rem 0;
+    }
+    .callout.warn { border-color: var(--ps); }
+    .callout.success { border-color: var(--gm); }
+    .callout .label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; color: var(--gs); }
+    .callout.warn .label { color: var(--ps); }
+    .callout.success .label { color: var(--gm); }
+
+    /* ── SVG DIAGRAM ── */
+    .diagram-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      overflow-x: auto;
+    }
+    .diagram-wrap svg { display: block; margin: 0 auto; max-width: 100%; }
+
+    /* ── TABLE ── */
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .88rem; }
+    th { background: #1a1a1a; color: var(--muted); font-weight: 600; text-align: left; padding: .55rem .8rem; border-bottom: 1px solid var(--border); }
+    td { padding: .5rem .8rem; border-bottom: 1px solid #1e1e1e; vertical-align: top; }
+    tr:hover td { background: #111; }
+
+    /* ── LEGEND ── */
+    .legend { display: flex; flex-wrap: wrap; gap: .6rem; margin: 1rem 0 1.5rem; }
+    .legend-item { display: flex; align-items: center; gap: .4rem; font-size: .8rem; }
+    .legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+    /* ── SECTION DIVIDER ── */
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">⬛ Backrooms Task Replication</span>
+  <a href="task-replication-workflow.html" class="active">Overview</a>
+  <a href="task-replication-workflow/gamestate-task-logic.html">GameState Logic</a>
+  <a href="task-replication-workflow/widget-ui-path.html">Widget / UI</a>
+  <a href="task-replication-workflow/task-item-base.html">Task Item Base</a>
+  <a href="task-replication-workflow/inter-blueprint-call-map.html">Call Map</a>
+</nav>
+
+<div class="page">
+
+  <h1>Backrooms Task Replication</h1>
+  <p class="subtitle">Workflow &amp; Blueprint Architecture — System Overview</p>
+
+  <div class="callout success">
+    <div class="label">Architecture Direction</div>
+    All authoritative task state has migrated from <strong class="ps">BP_PS_Gameplay (PlayerState)</strong>
+    into <strong class="gs">BP_GS_Gameplay (GameState)</strong>.
+    Widgets and task items now query GameState directly for replicated task data.
+  </div>
+
+  <!-- ── SYSTEM OVERVIEW DIAGRAM ── -->
+  <h2>System-Level Data Flow</h2>
+  <p>
+    The diagram below shows every major blueprint and the direction of data across
+    the network boundary.  Blue arrows carry <em>authoritative / replicated</em> data;
+    grey arrows are local or request flows.
+  </p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6"></div> GameState (replicated authority)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div> GameMode (server-only)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div> PlayerState (per-player, replicated)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a855f7"></div> Widget / UI (local)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ef4444"></div> BP_Task_Item_Base (in-world)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#eab308"></div> PlayerController (owned, RPC)</div>
+  </div>
+
+  <div class="diagram-wrap">
+    <svg viewBox="0 0 900 580" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI',system-ui,sans-serif" font-size="13">
+      <defs>
+        <marker id="ah" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/>
+        </marker>
+        <marker id="ah-g" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0,10 3.5,0 7" fill="#22c55e"/>
+        </marker>
+        <marker id="ah-grey" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0,10 3.5,0 7" fill="#555"/>
+        </marker>
+        <marker id="ah-rep" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+          <polygon points="0 0,10 3.5,0 7" fill="#a855f7"/>
+        </marker>
+      </defs>
+
+      <!-- Server boundary -->
+      <rect x="10" y="10" width="560" height="430" rx="12" fill="none" stroke="#1e3a5f" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text x="26" y="32" fill="#3b82f6" font-size="11" font-weight="600" opacity=".7">SERVER AUTHORITY</text>
+
+      <!-- Client boundary -->
+      <rect x="620" y="10" width="260" height="430" rx="12" fill="none" stroke="#2e1065" stroke-width="1.5" stroke-dasharray="6 4"/>
+      <text x="636" y="32" fill="#a855f7" font-size="11" font-weight="600" opacity=".7">CLIENT (Local)</text>
+
+      <!-- ── BP_Task_Item_Base ── -->
+      <rect x="40" y="60" width="190" height="60" rx="8" fill="#200a0a" stroke="#ef4444" stroke-width="1.5"/>
+      <text x="135" y="84" fill="#ef4444" text-anchor="middle" font-weight="700">BP_Task_Item_Base</text>
+      <text x="135" y="101" fill="#ccc" text-anchor="middle" font-size="11">In-world interactable</text>
+
+      <!-- ── BP_PS_Gameplay ── -->
+      <rect x="40" y="200" width="190" height="60" rx="8" fill="#1a0e00" stroke="#f97316" stroke-width="1.5"/>
+      <text x="135" y="224" fill="#f97316" text-anchor="middle" font-weight="700">BP_PS_Gameplay</text>
+      <text x="135" y="241" fill="#ccc" text-anchor="middle" font-size="11">Server_ReportTaskCompleted RPC</text>
+
+      <!-- ── BP_GM_Gameplay ── -->
+      <rect x="280" y="130" width="200" height="60" rx="8" fill="#0a1a0e" stroke="#22c55e" stroke-width="1.5"/>
+      <text x="380" y="154" fill="#22c55e" text-anchor="middle" font-weight="700">BP_GM_Gameplay</text>
+      <text x="380" y="171" fill="#ccc" text-anchor="middle" font-size="11">OnTaskCompleted · CheckWin</text>
+
+      <!-- ── BP_GS_Gameplay ── -->
+      <rect x="280" y="280" width="200" height="70" rx="8" fill="#0a1929" stroke="#3b82f6" stroke-width="2"/>
+      <text x="380" y="305" fill="#3b82f6" text-anchor="middle" font-weight="700">BP_GS_Gameplay</text>
+      <text x="380" y="322" fill="#ccc" text-anchor="middle" font-size="11">GloballyCompletedTaskIDs[]</text>
+      <text x="380" y="337" fill="#ccc" text-anchor="middle" font-size="11">ActiveTasksList · TaskProgress</text>
+
+      <!-- ── BP_PC_Gameplay (PlayerController) ── -->
+      <rect x="40" y="340" width="190" height="60" rx="8" fill="#1c1400" stroke="#eab308" stroke-width="1.5"/>
+      <text x="135" y="364" fill="#eab308" text-anchor="middle" font-weight="700">BP_PC_Gameplay</text>
+      <text x="135" y="381" fill="#ccc" text-anchor="middle" font-size="11">Owned RPC bridge (optional)</text>
+
+      <!-- ── WBP_Inventory ── -->
+      <rect x="640" y="60" width="210" height="60" rx="8" fill="#1a0a2e" stroke="#a855f7" stroke-width="1.5"/>
+      <text x="745" y="84" fill="#a855f7" text-anchor="middle" font-weight="700">WBP_Inventory (Tablet)</text>
+      <text x="745" y="101" fill="#ccc" text-anchor="middle" font-size="11">Casts → GameState for tasks</text>
+
+      <!-- ── WBP_TaskRow ── -->
+      <rect x="640" y="200" width="210" height="60" rx="8" fill="#1a0a2e" stroke="#a855f7" stroke-width="1"/>
+      <text x="745" y="224" fill="#c084fc" text-anchor="middle" font-weight="600">WBP_TaskRow</text>
+      <text x="745" y="241" fill="#ccc" text-anchor="middle" font-size="11">Per-task progress widget</text>
+
+      <!-- ── HUD ── -->
+      <rect x="640" y="340" width="210" height="60" rx="8" fill="#1a0a2e" stroke="#a855f7" stroke-width="1"/>
+      <text x="745" y="364" fill="#c084fc" text-anchor="middle" font-weight="600">HUD / On-Screen Notifs</text>
+      <text x="745" y="381" fill="#ccc" text-anchor="middle" font-size="11">RepNotify-driven refresh</text>
+
+      <!-- Network divider label -->
+      <line x1="610" y1="50" x2="610" y2="450" stroke="#333" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="610" y="470" fill="#555" text-anchor="middle" font-size="11">Network boundary</text>
+
+      <!-- ARROWS -->
+      <!-- Task item → PlayerState (local detect) -->
+      <line x1="135" y1="120" x2="135" y2="198" stroke="#555" stroke-width="1.5" marker-end="url(#ah-grey)"/>
+      <text x="148" y="163" fill="#777" font-size="10">Completion detected</text>
+
+      <!-- PlayerState → GM (Server RPC) -->
+      <line x1="230" y1="225" x2="278" y2="180" stroke="#eab308" stroke-width="1.5" marker-end="url(#ah-g)" stroke-dasharray="5 3"/>
+      <text x="240" y="210" fill="#ca8a04" font-size="10">Server RPC</text>
+
+      <!-- GM → GS (write global state) -->
+      <line x1="380" y1="190" x2="380" y2="278" stroke="#3b82f6" stroke-width="2" marker-end="url(#ah)"/>
+      <text x="386" y="238" fill="#60a5fa" font-size="10">Write GloballyCompleted</text>
+
+      <!-- Task item → GS (direct progress update) -->
+      <line x1="232" y1="80" x2="278" y2="295" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#ah)" stroke-dasharray="4 3"/>
+      <text x="220" y="180" fill="#60a5fa" font-size="10" transform="rotate(-52,220,180)">UpdateTaskProgress</text>
+
+      <!-- GS → WBP_Inventory (replication) -->
+      <line x1="482" y1="305" x2="638" y2="90" stroke="#3b82f6" stroke-width="2" marker-end="url(#ah-rep)"/>
+      <text x="530" y="200" fill="#60a5fa" font-size="10" transform="rotate(-48,530,200)">Replicated / RepNotify</text>
+
+      <!-- WBP_Inventory → WBP_TaskRow -->
+      <line x1="745" y1="120" x2="745" y2="198" stroke="#a855f7" stroke-width="1.5" marker-end="url(#ah-rep)"/>
+      <text x="750" y="163" fill="#c084fc" font-size="10">Spawn rows</text>
+
+      <!-- GS → HUD (RepNotify) -->
+      <line x1="482" y1="350" x2="638" y2="365" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#ah-rep)" stroke-dasharray="4 3"/>
+      <text x="530" y="345" fill="#60a5fa" font-size="10">OnRep notify</text>
+
+      <!-- PC → GS (optional path) -->
+      <line x1="230" y1="365" x2="278" y2="340" stroke="#eab308" stroke-width="1.2" marker-end="url(#ah)" stroke-dasharray="3 3"/>
+      <text x="240" y="358" fill="#ca8a04" font-size="10" font-style="italic">alt RPC path</text>
+
+      <!-- KEY -->
+      <rect x="30" y="468" width="840" height="100" rx="8" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
+      <text x="50" y="488" fill="#888" font-size="11" font-weight="600">LEGEND</text>
+      <line x1="50" y1="505" x2="90" y2="505" stroke="#3b82f6" stroke-width="2" marker-end="url(#ah)"/>
+      <text x="97" y="509" fill="#ccc" font-size="11">Replicated data / RepNotify</text>
+      <line x1="230" y1="505" x2="270" y2="505" stroke="#eab308" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#ah)"/>
+      <text x="277" y="509" fill="#ccc" font-size="11">Server RPC call</text>
+      <line x1="410" y1="505" x2="450" y2="505" stroke="#555" stroke-width="1.5" marker-end="url(#ah-grey)"/>
+      <text x="457" y="509" fill="#ccc" font-size="11">Local / non-replicated call</text>
+      <line x1="620" y1="505" x2="660" y2="505" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#ah)"/>
+      <text x="667" y="509" fill="#ccc" font-size="11">Replication (read from GS)</text>
+
+      <text x="50" y="535" fill="#ccc" font-size="11">Blueprints: </text>
+      <rect x="110" y="524" width="12" height="12" rx="2" fill="#200a0a" stroke="#ef4444"/>
+      <text x="126" y="535" fill="#ccc" font-size="11">Task Item</text>
+      <rect x="198" y="524" width="12" height="12" rx="2" fill="#1a0e00" stroke="#f97316"/>
+      <text x="214" y="535" fill="#ccc" font-size="11">PlayerState</text>
+      <rect x="295" y="524" width="12" height="12" rx="2" fill="#0a1a0e" stroke="#22c55e"/>
+      <text x="311" y="535" fill="#ccc" font-size="11">GameMode</text>
+      <rect x="390" y="524" width="12" height="12" rx="2" fill="#0a1929" stroke="#3b82f6"/>
+      <text x="406" y="535" fill="#ccc" font-size="11">GameState ★</text>
+      <rect x="488" y="524" width="12" height="12" rx="2" fill="#1c1400" stroke="#eab308"/>
+      <text x="504" y="535" fill="#ccc" font-size="11">PlayerController</text>
+      <rect x="608" y="524" width="12" height="12" rx="2" fill="#1a0a2e" stroke="#a855f7"/>
+      <text x="624" y="535" fill="#ccc" font-size="11">Widget / UI</text>
+      <text x="700" y="535" fill="#3b82f6" font-size="11">★ = primary authority</text>
+
+      <text x="50" y="558" fill="#555" font-size="10">Note: dashed box = logical boundary, not a physical class</text>
+    </svg>
+  </div>
+
+  <!-- ── HIGH-LEVEL SUMMARY ── -->
+  <h2>High-Level Flow Summary</h2>
+
+  <ol>
+    <li>
+      <strong>Player Interaction</strong> — A player walks up to an in-world
+      <span class="badge badge-task">BP_Task_Item_Base</span> and presses the interact key.
+      The interaction event fires on the owning client.
+    </li>
+    <li>
+      <strong>Local Progress</strong> — The task item (or the owning
+      <span class="badge badge-ps">BP_PS_Gameplay</span>) increments local progress and
+      calls <code>IsTaskComplete</code>.
+    </li>
+    <li>
+      <strong>Server RPC</strong> — If the task is complete, a
+      <em>Run-on-Server / Reliable</em> event (<code>Server_ReportTaskCompleted</code>)
+      is dispatched from the client-owned
+      <span class="badge badge-ps">PlayerState</span> or
+      <span class="badge badge-pc">PlayerController</span>
+      to the server.
+    </li>
+    <li>
+      <strong>GameMode Validates</strong> — On the server,
+      <span class="badge badge-gm">BP_GM_Gameplay</span> receives
+      <code>OnTaskCompleted(TaskID)</code>, deduplicates, and writes the result into
+      <span class="badge badge-gs">BP_GS_Gameplay</span>.
+    </li>
+    <li>
+      <strong>GameState Replicates</strong> —
+      <code>GloballyCompletedTaskIDs</code> and all task-progress arrays in
+      <span class="badge badge-gs">GameState</span> are replicated to every client via
+      <code>RepNotify</code>.
+    </li>
+    <li>
+      <strong>UI Updates</strong> — Each client's
+      <span class="badge badge-ui">WBP_Inventory</span> / HUD observes
+      <code>OnRep_CompletedTaskIDs</code> and refreshes task rows — no more
+      PlayerState cast needed.
+    </li>
+  </ol>
+
+  <hr/>
+
+  <!-- ── PAGE GUIDE ── -->
+  <h2>Documentation Pages</h2>
+  <p>Navigate to any section for detailed diagrams and blueprint call-outs:</p>
+
+  <div class="cards">
+    <a class="card" href="task-replication-workflow/gamestate-task-logic.html">
+      <span class="tag badge badge-gs">GameState</span>
+      <h4>GameState Task Logic</h4>
+      <p>Replicated variables, RepNotify setup, and how all clients stay in sync.</p>
+    </a>
+    <a class="card" href="task-replication-workflow/widget-ui-path.html">
+      <span class="tag badge badge-ui">Widget / UI</span>
+      <h4>Widget &amp; UI Path</h4>
+      <p>WBP_Inventory and task rows — now casting to GameState, not PlayerState.</p>
+    </a>
+    <a class="card" href="task-replication-workflow/task-item-base.html">
+      <span class="tag badge badge-task">Task Item</span>
+      <h4>BP_Task_Item_Base</h4>
+      <p>In-world interaction, RPC bridging, and how progress reaches the server.</p>
+    </a>
+    <a class="card" href="task-replication-workflow/inter-blueprint-call-map.html">
+      <span class="tag badge badge-gm">Call Map</span>
+      <h4>Inter-Blueprint Call Map</h4>
+      <p>Full event/function call graph across all blueprints in the system.</p>
+    </a>
+  </div>
+
+  <hr/>
+
+  <!-- ── BLUEPRINT SUMMARY TABLE ── -->
+  <h2>Blueprint Roles at a Glance</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Blueprint</th>
+        <th>Network Role</th>
+        <th>Responsibility (new architecture)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="task">BP_Task_Item_Base</span></td>
+        <td>Actor — replicated</td>
+        <td>Detects interaction, calls progress update, fires server RPC on completion</td>
+      </tr>
+      <tr>
+        <td><span class="ps">BP_PS_Gameplay</span></td>
+        <td>PlayerState — replicated per-player</td>
+        <td>Hosts <code>Server_ReportTaskCompleted</code> RPC; local UI progress mirroring only</td>
+      </tr>
+      <tr>
+        <td><span class="gm">BP_GM_Gameplay</span></td>
+        <td>GameMode — server-only</td>
+        <td>Validates completion, deduplicates TaskIDs, writes into GameState, checks win condition</td>
+      </tr>
+      <tr>
+        <td><strong class="gs">BP_GS_Gameplay ★</strong></td>
+        <td>GameState — replicated to all</td>
+        <td>Authoritative source for task lists, per-task progress, and globally completed IDs</td>
+      </tr>
+      <tr>
+        <td><span class="pc">BP_PC_Gameplay</span></td>
+        <td>PlayerController — owned by client</td>
+        <td>Optional secondary RPC bridge if task item cannot reach PlayerState directly</td>
+      </tr>
+      <tr>
+        <td><span class="ui">WBP_Inventory</span></td>
+        <td>Widget — local only</td>
+        <td>Casts to <strong>GameState</strong> (not PlayerState) to build and refresh task rows</td>
+      </tr>
+      <tr>
+        <td><span class="ui">WBP_TaskRow</span></td>
+        <td>Widget — local only</td>
+        <td>Reads progress and completion state from GameState variables</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <div class="label">Migration Note</div>
+    Any existing Blueprint node that does <strong>Cast to BP_PS_Gameplay → Get ActiveTasksList</strong>
+    (or similar) inside a widget must be updated to
+    <strong>Cast to BP_GS_Gameplay → Get ActiveTasksList</strong>.
+    See the <a href="task-replication-workflow/widget-ui-path.html" style="color:var(--gs)">Widget / UI page</a> for the exact node changes.
+  </div>
+
+</div>
+</body>
+</html>
