@@ -39,5 +39,9 @@ RepNotify -> UI refresh</pre></div></article>
     <article class="card"><h2>Integration with Main Workflow</h2><div class="diagram"><svg viewBox="0 0 500 240" xmlns="http://www.w3.org/2000/svg"><defs><marker id="i" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker></defs><rect class="diagram-box task" x="18" y="34" width="160" height="52"/><text class="diagram-text" x="54" y="66">Place/Pickup</text><rect class="diagram-box gm" x="188" y="34" width="146" height="52"/><text class="diagram-text" x="204" y="66">GM Counters</text><rect class="diagram-box gs" x="344" y="34" width="140" height="52"/><text class="diagram-text" x="356" y="66">GS State</text><rect class="diagram-box ui" x="188" y="154" width="146" height="52"/><text class="diagram-text" x="223" y="185">UI Refresh</text><path class="flow-arrow gs" d="M178 60 L188 60" marker-end="url(#i)"/><path class="flow-arrow gs" d="M334 60 L344 60" marker-end="url(#i)"/><path class="flow-arrow ui" d="M414 86 C410 130,350 154,334 179" marker-end="url(#i)"/></svg></div><details class="details-panel"><summary>Advanced details</summary><p class="small">No new per-section maps were introduced. Existing completion counters remain the gate condition.</p></details></article>
   </section>
 </main>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>

@@ -35,5 +35,9 @@ NEW: GetGameState  -> Cast BP_GS_Gameplay</pre></div></article>
     <article class="card"><h2>WBP structure</h2><ul><li>WBP_Inventory: root list + refresh orchestrator</li><li>WBP_TaskRow: per-task completion row</li><li>Refresh path triggered by OnRep / replicated changes</li></ul></article>
   </section>
 </main>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>

@@ -83,12 +83,25 @@ else
   <div class="tooltip" id="tooltip"></div>
   <script>
     const tip = document.getElementById('tooltip');
-    document.querySelectorAll('.diagram-node').forEach(n => {
-      n.addEventListener('mousemove', e => { tip.style.display='block'; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY+12)+'px'; tip.textContent=n.dataset.tooltip||''; });
-      n.addEventListener('mouseleave', () => tip.style.display='none');
+    function showTooltip(event, node) {
+      tip.style.display = 'block';
+      tip.style.left = (event.clientX + 14) + 'px';
+      tip.style.top = (event.clientY + 12) + 'px';
+      tip.textContent = node.dataset.tooltip || '';
+    }
+    function hideTooltip() {
+      tip.style.display = 'none';
+    }
+    document.querySelectorAll('.diagram-node').forEach(node => {
+      node.addEventListener('mousemove', event => showTooltip(event, node));
+      node.addEventListener('mouseleave', hideTooltip);
     });
-    const io = new IntersectionObserver(entries => entries.forEach(e=> e.target.classList.toggle('show',e.isIntersecting)), {threshold:.15});
-    document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        entry.target.classList.toggle('show', entry.isIntersecting);
+      });
+    }, { threshold: .15 });
+    document.querySelectorAll('.fade-in').forEach(element => io.observe(element));
   </script>
 </body>
 </html>

@@ -49,5 +49,9 @@ OnRep -> widget refresh</pre></div></article>
     <article class="card"><h2>Variable migration table</h2><div class="table-wrap"><table><thead><tr><th>Old source</th><th>New source</th><th>Why</th></tr></thead><tbody><tr><td>PlayerState task data</td><td>GameState task data</td><td>Shared replication authority</td></tr><tr><td>Widget cast to BP_PS_Gameplay</td><td>Widget cast to BP_GS_Gameplay</td><td>Consistent cross-client reads</td></tr><tr><td>Client-side assumptions</td><td>OnRep-driven refresh</td><td>Server-authored correctness</td></tr></tbody></table></div></article>
   </section>
 </main>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>

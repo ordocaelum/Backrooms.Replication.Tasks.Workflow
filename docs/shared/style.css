@@ -1,4 +1,12 @@
 :root {
+  --color-background: #0a0a0a;
+  --color-surface: #121212;
+  --color-gamestate: #3b82f6;
+  --color-gamemode: #22c55e;
+  --color-playerstate: #f97316;
+  --color-task: #ef4444;
+  --color-ui: #a855f7;
+  --color-playercontroller: #eab308;
   --bg: #0a0a0a;
   --surface: #121212;
   --surface-2: #1a1a1a;
@@ -98,3 +106,4 @@ table { width: 100%; border-collapse: collapse; font-size: .92rem; }
 th, td { border-bottom: 1px solid #272727; padding: .6rem; text-align: left; }
 th { color: #d1d5db; background: #121212; cursor: pointer; }
 footer { border-top: 1px solid var(--border); margin-top: 2rem; padding-top: 1rem; color: var(--text-muted); }
+.is-filtered-out { display: none !important; }

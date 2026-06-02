@@ -65,11 +65,48 @@ if (CompletedTaskCount < RequiredTaskCount)
   </section>
 </main>
 <script>
-const input=document.getElementById('search');
-input.addEventListener('input',()=>{const q=input.value.toLowerCase();document.querySelectorAll('section.card, section.grid-2').forEach(s=>{s.style.display=s.innerText.toLowerCase().includes(q)?'':'none';});});
-const table=document.getElementById('bp-table');
-document.querySelectorAll('#bp-table th[data-sort]').forEach(th=>{let asc=true;th.addEventListener('click',()=>{const idx=+th.dataset.sort;const rows=[...table.tBodies[0].rows].sort((a,b)=>{const r=a.cells[idx].innerText.localeCompare(b.cells[idx].innerText);return asc?r:-r;});asc=!asc;rows.forEach(r=>table.tBodies[0].appendChild(r));});});
-const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+const searchInput = document.getElementById('search');
+const sections = document.querySelectorAll('section.card, section.grid-2');
+
+function applySearchFilter() {
+  const query = searchInput.value.toLowerCase();
+  sections.forEach(section => {
+    const isMatch = section.innerText.toLowerCase().includes(query);
+    section.classList.toggle('is-filtered-out', !isMatch);
+  });
+}
+
+searchInput.addEventListener('input', applySearchFilter);
+
+const table = document.getElementById('bp-table');
+
+function sortBlueprintTable(columnIndex, ascending) {
+  const rows = [...table.tBodies[0].rows];
+  rows.sort((rowA, rowB) => {
+    const textA = rowA.cells[columnIndex].innerText;
+    const textB = rowB.cells[columnIndex].innerText;
+    const result = textA.localeCompare(textB);
+    return ascending ? result : -result;
+  });
+  rows.forEach(row => table.tBodies[0].appendChild(row));
+}
+
+document.querySelectorAll('#bp-table th[data-sort]').forEach(header => {
+  let ascending = true;
+  header.addEventListener('click', () => {
+    const columnIndex = Number(header.dataset.sort);
+    sortBlueprintTable(columnIndex, ascending);
+    ascending = !ascending;
+  });
+});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    entry.target.classList.toggle('show', entry.isIntersecting);
+  });
+}, { threshold: .1 });
+
+document.querySelectorAll('.fade-in').forEach(element => io.observe(element));
 </script>
 </body>
 </html>

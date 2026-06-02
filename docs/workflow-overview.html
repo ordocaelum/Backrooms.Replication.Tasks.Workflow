@@ -74,9 +74,43 @@
 </main>
 <div class="tooltip" id="tooltip"></div>
 <script>
-const tip=document.getElementById('tooltip');
-document.querySelectorAll('.diagram-node').forEach(n=>{n.addEventListener('mouseenter',()=>{document.querySelectorAll('.'+n.dataset.flow).forEach(a=>a.classList.add('highlight'));});n.addEventListener('mouseleave',()=>{document.querySelectorAll('.flow-arrow').forEach(a=>a.classList.remove('highlight'));tip.style.display='none';});n.addEventListener('mousemove',e=>{tip.style.display='block';tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY+10)+'px';tip.textContent=n.dataset.tooltip||'';});});
-const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+const tip = document.getElementById('tooltip');
+
+function highlightFlow(flowClass) {
+  document.querySelectorAll('.' + flowClass).forEach(arrow => arrow.classList.add('highlight'));
+}
+
+function clearFlowHighlight() {
+  document.querySelectorAll('.flow-arrow').forEach(arrow => arrow.classList.remove('highlight'));
+}
+
+function showTooltip(event, node) {
+  tip.style.display = 'block';
+  tip.style.left = (event.clientX + 14) + 'px';
+  tip.style.top = (event.clientY + 10) + 'px';
+  tip.textContent = node.dataset.tooltip || '';
+}
+
+function hideTooltip() {
+  tip.style.display = 'none';
+}
+
+document.querySelectorAll('.diagram-node').forEach(node => {
+  node.addEventListener('mouseenter', () => highlightFlow(node.dataset.flow));
+  node.addEventListener('mouseleave', () => {
+    clearFlowHighlight();
+    hideTooltip();
+  });
+  node.addEventListener('mousemove', event => showTooltip(event, node));
+});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    entry.target.classList.toggle('show', entry.isIntersecting);
+  });
+}, { threshold: .1 });
+
+document.querySelectorAll('.fade-in').forEach(element => io.observe(element));
 </script>
 </body>
 </html>

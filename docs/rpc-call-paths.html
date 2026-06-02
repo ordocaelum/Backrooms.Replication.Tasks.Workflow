@@ -39,5 +39,9 @@
     <article class="card"><h3>Optional Advanced Route</h3><p>Projects can route through PlayerController before PlayerState, while preserving server authority and GameState replication output.</p></article>
   </section>
 </main>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>
