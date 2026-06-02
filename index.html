@@ -2,106 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Backrooms Task Replication Workflow</title>
-  <link rel="stylesheet" href="docs/shared/style.css" />
-  <link rel="stylesheet" href="docs/shared/layout.css" />
-  <link rel="stylesheet" href="docs/shared/diagrams.css" />
-  <link rel="stylesheet" href="docs/shared/animations.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Master Interactive Tree | Backrooms Task Workflow</title>
+  <link rel="stylesheet" href="tree.css" />
 </head>
 <body>
-  <header class="nav"><div class="nav-inner"><span class="brand">⬛ Backrooms Workflow</span>
-    <a href="index.html">Home</a><a href="docs/workflow-overview.html">Overview</a><a href="docs/section-tasks-flow.html">Section Tasks</a><a href="docs/rpc-call-paths.html">RPC Paths</a><a href="docs/gamestate-authority.html">GameState</a><a href="docs/ui-widget-flow.html">UI Flow</a><a href="docs/quick-reference.html">Quick Ref</a>
-  </div></header>
-  <main class="container stack">
-    <div class="breadcrumb"><strong>Home</strong></div>
-    <section class="hero fade-in">
-      <h1>Backrooms Task Replication Workflow</h1>
-      <p class="subtitle">Authoritative GameState + RPC Flow + Section-Aware Tasks</p>
-      <div class="legend">
-        <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>GameState Authority</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>Real-time Replication</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Section Completion Logic</div>
+  <header class="topbar">
+    <div class="brand">⬛ Backrooms Workflow · Master Interactive Tree</div>
+    <div class="topbar-actions">
+      <label class="search-wrap" for="treeSearch">
+        <span>Search</span>
+        <input id="treeSearch" type="search" placeholder="Find function or variable (e.g. CompletedTaskCount)" autocomplete="off" />
+      </label>
+      <button id="searchNext" type="button" class="btn">Next</button>
+      <button id="resetHighlights" type="button" class="btn ghost">Clear</button>
+      <button id="toggleSidebarMobile" type="button" class="btn mobile-only">Details</button>
+    </div>
+  </header>
+
+  <aside class="legend" aria-label="Arrow legend">
+    <h2>Legend</h2>
+    <ul>
+      <li><span class="swatch replication"></span>Solid blue = Replication</li>
+      <li><span class="swatch rpc"></span>Dashed orange = Server RPC</li>
+      <li><span class="swatch revert"></span>Dashed red = Revert path</li>
+      <li><span class="swatch local"></span>Solid gray = Local/client call</li>
+      <li><span class="swatch server"></span>Solid green = Server call</li>
+    </ul>
+  </aside>
+
+  <main class="layout">
+    <section class="tree-pane" aria-label="Master workflow tree">
+      <div class="tree-controls">
+        <button id="zoomIn" type="button" class="btn">+</button>
+        <button id="zoomOut" type="button" class="btn">−</button>
+        <button id="fitToScreen" type="button" class="btn">Fit</button>
+        <button id="resetZoom" type="button" class="btn">Reset</button>
+        <button id="downloadImage" type="button" class="btn">Download PNG</button>
+        <button id="shareNode" type="button" class="btn">Share Link</button>
+        <button id="printView" type="button" class="btn">Print</button>
       </div>
-      <div class="diagram">
-        <svg viewBox="0 0 980 380" xmlns="http://www.w3.org/2000/svg" aria-label="System overview">
-          <defs><marker id="a1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker></defs>
-          <g class="diagram-node" data-tooltip="Player interaction with task actor"><rect class="diagram-box task" x="36" y="132" width="170" height="68"/><text class="diagram-text" x="55" y="171">BP_Task_Item_Base</text></g>
-          <g class="diagram-node" data-tooltip="Client/server RPC bridge"><rect class="diagram-box ps" x="252" y="132" width="170" height="68"/><text class="diagram-text" x="283" y="171">BP_PS_Gameplay</text></g>
-          <g class="diagram-node" data-tooltip="Server validation"><rect class="diagram-box gm" x="468" y="132" width="170" height="68"/><text class="diagram-text" x="500" y="171">BP_GM_Gameplay</text></g>
-          <g class="diagram-node" data-tooltip="Replicated authority"><rect class="diagram-box gs" x="684" y="132" width="170" height="68"/><text class="diagram-text" x="716" y="171">BP_GS_Gameplay</text></g>
-          <g class="diagram-node" data-tooltip="Widget refresh from OnRep"><rect class="diagram-box ui" x="684" y="252" width="170" height="68"/><text class="diagram-text" x="722" y="291">WBP_Inventory</text></g>
-          <path class="flow-arrow gs" d="M206 166 L252 166" marker-end="url(#a1)"/>
-          <path class="flow-arrow rpc" d="M422 166 L468 166" marker-end="url(#a1)"/>
-          <path class="flow-arrow gm" d="M638 166 L684 166" marker-end="url(#a1)"/>
-          <path class="flow-arrow ui" d="M769 200 L769 252" marker-end="url(#a1)"/>
-          <text class="diagram-text" x="282" y="124">Client</text><text class="diagram-text" x="512" y="124">Server</text><text class="diagram-text" x="738" y="242">OnRep</text>
+
+      <div id="treeViewport" class="tree-viewport">
+        <svg id="masterTreeSvg" role="img" aria-labelledby="treeTitle treeDesc">
+          <title id="treeTitle">Master interactive flow for task replication and anchor pickup</title>
+          <desc id="treeDesc">Three vertically stacked sections: anchor placement, anchor pickup revert, and anchor pickup no-revert.</desc>
+          <defs>
+            <marker id="arrow-replication" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#3b82f6"></path>
+            </marker>
+            <marker id="arrow-rpc" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#f97316"></path>
+            </marker>
+            <marker id="arrow-revert" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#ef4444"></path>
+            </marker>
+            <marker id="arrow-local" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#9ca3af"></path>
+            </marker>
+            <marker id="arrow-server" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="#22c55e"></path>
+            </marker>
+          </defs>
+          <g id="viewportGroup"></g>
         </svg>
       </div>
     </section>
 
-    <section class="grid-cards fade-in">
-      <article class="card"><h3>GameState Authority</h3><p>One replicated source for active tasks, completed IDs, and progress counters.</p></article>
-      <article class="card"><h3>Real-time Replication</h3><p>Server writes in GM/GS, clients update through RepNotify and UI refresh.</p></article>
-      <article class="card"><h3>Section Logic</h3><p>Pickup revert only runs when <code>CompletedTaskCount &lt; RequiredTaskCount</code>.</p></article>
-    </section>
-
-    <section class="section fade-in">
-      <h2>Documentation Map</h2>
-      <div class="grid-cards">
-        <a class="card" href="docs/workflow-overview.html"><h3>Workflow Overview</h3><p>System-level SVG + 3-step flow.</p></a>
-        <a class="card" href="docs/section-tasks-flow.html"><h3>Section Tasks Flow</h3><p>Placement, revert, and no-revert comparison.</p></a>
-        <a class="card" href="docs/rpc-call-paths.html"><h3>RPC Call Paths</h3><p>Server_ReportTaskCompleted and RevertTaskProgress_RPC timelines.</p></a>
-        <a class="card" href="docs/gamestate-authority.html"><h3>GameState Authority</h3><p>Replicated variables, RepNotify, migration view.</p></a>
-        <a class="card" href="docs/ui-widget-flow.html"><h3>UI Widget Flow</h3><p>WBP_Inventory casting and refresh path.</p></a>
-        <a class="card" href="docs/quick-reference.html"><h3>Quick Reference</h3><p>Tables, lookups, RPC shortcuts, migration checklist.</p></a>
+    <aside id="detailPanel" class="detail-panel" aria-live="polite">
+      <header class="panel-header">
+        <h2>Node Details</h2>
+        <div class="panel-header-actions">
+          <button id="backToTree" type="button" class="btn ghost">Back to tree</button>
+          <button id="collapsePanel" type="button" class="btn ghost" aria-expanded="true">Collapse</button>
+          <button id="closeSidebarMobile" type="button" class="btn ghost mobile-only">Close</button>
+        </div>
+      </header>
+      <div id="detailContent" class="panel-content">
+        <div class="empty-state">
+          <p>Select any node in the master tree to inspect exact Blueprint function signatures, variables, and logic snippets.</p>
+        </div>
       </div>
-    </section>
-
-    <section class="grid-2 fade-in">
-      <article class="card">
-        <h3>Core Completion Path</h3>
-        <div class="code-card"><pre>Interact Task
--> Server_ReportTaskCompleted(TaskID)
--> GameMode validates
--> GameState replicates to all clients</pre></div>
-      </article>
-      <article class="card">
-        <h3>Core Revert Gate</h3>
-        <div class="code-card"><pre>On anchor pickup:
-if (CompletedTaskCount &lt; RequiredTaskCount)
-    RevertTaskProgress_RPC(TaskID)
-else
-    keep completion state</pre></div>
-      </article>
-    </section>
-
-    <footer>
-      <p>Repository: <a href="https://github.com/ordocaelum/Backrooms.Replication.Tasks.Workflow">ordocaelum/Backrooms.Replication.Tasks.Workflow</a></p>
-    </footer>
+    </aside>
   </main>
-  <div class="tooltip" id="tooltip"></div>
-  <script>
-    const tip = document.getElementById('tooltip');
-    function showTooltip(event, node) {
-      tip.style.display = 'block';
-      tip.style.left = (event.clientX + 14) + 'px';
-      tip.style.top = (event.clientY + 12) + 'px';
-      tip.textContent = node.dataset.tooltip || '';
-    }
-    function hideTooltip() {
-      tip.style.display = 'none';
-    }
-    document.querySelectorAll('.diagram-node').forEach(node => {
-      node.addEventListener('mousemove', event => showTooltip(event, node));
-      node.addEventListener('mouseleave', hideTooltip);
-    });
-    const io = new IntersectionObserver(entries => {
-      entries.forEach(entry => {
-        entry.target.classList.toggle('show', entry.isIntersecting);
-      });
-    }, { threshold: .15 });
-    document.querySelectorAll('.fade-in').forEach(element => io.observe(element));
-  </script>
+
+  <script src="tree.js"></script>
 </body>
 </html>
