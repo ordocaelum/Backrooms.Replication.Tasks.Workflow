@@ -58,3 +58,16 @@ flowchart LR
 - **Solid arrows** = direct data flow, function calls, or RPC progression
 - **Dashed arrow** = UI read/query dependency on replicated GameState
 - **RepNotify label** = replicated server state changing client-visible UI
+
+## Section-aware anchor extension
+
+```mermaid
+flowchart LR
+    Pickup[Anchor pickup] --> Check{CompletedTaskCount < RequiredTaskCount}
+    Check -- Yes --> Revert[GS.RevertTaskProgress_RPC(TaskID)]
+    Revert --> GSState[ActiveTasksItems remove<br/>CompletedTaskCount--<br/>TotalProgress--]
+    GSState --> UI[Replicated UI refresh]
+    Check -- No --> Move[Allow movement without revert]
+```
+
+Detailed sequence and diagrams are documented in [Section Task Completion](section-task-completion.md).
