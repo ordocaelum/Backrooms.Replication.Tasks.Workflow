@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RPC Call Paths</title>
+  <link rel="stylesheet" href="shared/style.css" />
+  <link rel="stylesheet" href="shared/layout.css" />
+  <link rel="stylesheet" href="shared/diagrams.css" />
+  <link rel="stylesheet" href="shared/animations.css" />
+</head>
+<body>
+<header class="nav"><div class="nav-inner"><span class="brand">⬛ Backrooms Workflow</span><a href="../index.html">Home</a><a href="workflow-overview.html">Overview</a><a href="section-tasks-flow.html">Section Tasks</a><a href="rpc-call-paths.html">RPC</a><a href="gamestate-authority.html">GameState</a><a href="ui-widget-flow.html">UI</a><a href="quick-reference.html">Quick Ref</a></div></header>
+<main class="container stack">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><strong>RPC Call Paths</strong></div>
+  <section class="hero fade-in">
+    <h1>All RPC Flows in the System</h1>
+    <p class="subtitle">Completion and revert routes with client/server timeline boundaries.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span>RPC hop</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Revert path</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Replicated state update</div>
+    </div>
+    <div class="diagram"><svg viewBox="0 0 760 200" xmlns="http://www.w3.org/2000/svg"><defs><marker id="rpct" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#f97316"/></marker></defs><rect class="diagram-box task" x="20" y="72" width="164" height="56"/><text class="diagram-text" x="42" y="104">Player action</text><rect class="diagram-box ps" x="260" y="72" width="200" height="56"/><text class="diagram-text" x="286" y="104">RPC endpoint</text><rect class="diagram-box gs" x="540" y="72" width="200" height="56"/><text class="diagram-text" x="561" y="104">GS replicated write</text><path class="flow-arrow rpc" d="M184 100 L260 100" marker-end="url(#rpct)"/><path class="flow-arrow gs" d="M460 100 L540 100" marker-end="url(#rpct)"/></svg></div>
+  </section>
+
+  <section class="grid-2 fade-in">
+    <article class="card"><h2>Server_ReportTaskCompleted</h2><div class="diagram"><svg viewBox="0 0 520 360" xmlns="http://www.w3.org/2000/svg"><defs><marker id="m1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#f97316"/></marker></defs><line x1="120" y1="20" x2="120" y2="330" stroke="#3b82f6" stroke-dasharray="4 5"/><line x1="360" y1="20" x2="360" y2="330" stroke="#22c55e" stroke-dasharray="4 5"/><text class="diagram-text" x="84" y="18">Client</text><text class="diagram-text" x="328" y="18">Server</text><rect class="diagram-box task" x="34" y="50" width="170" height="48"/><text class="diagram-text" x="48" y="80">Player interaction</text><rect class="diagram-box ps" x="34" y="132" width="170" height="48"/><text class="diagram-text" x="47" y="162">PS RPC endpoint</text><rect class="diagram-box gm" x="282" y="132" width="190" height="48"/><text class="diagram-text" x="308" y="162">GM validation</text><rect class="diagram-box gs" x="282" y="214" width="190" height="48"/><text class="diagram-text" x="307" y="244">GS update + OnRep</text><path class="flow-arrow rpc" d="M204 156 L282 156" marker-end="url(#m1)"/><path class="flow-arrow gm" d="M377 180 L377 214" marker-end="url(#m1)"/></svg></div><div class="code-card"><pre>Server_ReportTaskCompleted(TaskID)
+ -> OnTaskCompleted(TaskID)
+ -> GS writes completion + replicate</pre></div></article>
+    <article class="card"><h2 style="color:#ef4444">RevertTaskProgress_RPC</h2><div class="diagram"><svg viewBox="0 0 520 360" xmlns="http://www.w3.org/2000/svg"><defs><marker id="m2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#ef4444"/></marker></defs><line x1="120" y1="20" x2="120" y2="330" stroke="#3b82f6" stroke-dasharray="4 5"/><line x1="360" y1="20" x2="360" y2="330" stroke="#22c55e" stroke-dasharray="4 5"/><text class="diagram-text" x="84" y="18">Client</text><text class="diagram-text" x="328" y="18">Server</text><rect class="diagram-box task" x="34" y="50" width="170" height="48"/><text class="diagram-text" x="48" y="80">Anchor pickup</text><rect class="diagram-box gm" x="34" y="132" width="170" height="48"/><text class="diagram-text" x="42" y="162">Check counters</text><rect class="diagram-box ps" x="34" y="214" width="170" height="48"/><text class="diagram-text" x="43" y="244">Revert RPC request</text><rect class="diagram-box gs" x="282" y="214" width="190" height="48"/><text class="diagram-text" x="315" y="244">GS revert write</text><path class="flow-arrow revert" d="M204 238 L282 238" marker-end="url(#m2)"/><path class="flow-arrow revert" d="M120 180 L120 214" marker-end="url(#m2)"/></svg></div><div class="code-card"><pre>if CompletedTaskCount < RequiredTaskCount:
+  RevertTaskProgress_RPC(TaskID)
+  ActiveTasksItems.Remove(Task)
+  CompletedTaskCount--</pre></div></article>
+  </section>
+
+  <section class="grid-2 fade-in">
+    <article class="card"><h3>Flow Differences</h3><ul><li>Completion path increments and propagates success state.</li><li>Revert path decrements while section is incomplete.</li><li>Both terminate with GameState replication to clients.</li></ul></article>
+    <article class="card"><h3>Optional Advanced Route</h3><p>Projects can route through PlayerController before PlayerState, while preserving server authority and GameState replication output.</p></article>
+  </section>
+</main>
+</body>
+</html>

@@ -1,0 +1,6 @@
+.fade-in { opacity: 0; transform: translateY(6px); transition: opacity .32s ease, transform .32s ease; }
+.fade-in.show { opacity: 1; transform: translateY(0); }
+.card, .hero, .diagram { transition: transform .15s ease, border-color .15s ease; }
+.card:hover { transform: translateY(-2px); border-color: #3b82f6; }
+.details-panel { border: 1px solid #262626; background: #101010; border-radius: 10px; padding: .65rem; }
+details > summary { cursor: pointer; color: #d8dee9; font-weight: 600; }
