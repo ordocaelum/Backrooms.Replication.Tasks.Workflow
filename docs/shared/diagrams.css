@@ -1,0 +1,39 @@
+.diagram {
+  background: #0a0a0a;
+  border: 1px solid #242424;
+  border-radius: 12px;
+  padding: .75rem;
+  overflow: auto;
+}
+.diagram svg { width: 100%; height: auto; display: block; }
+.diagram-box { fill: #1a1a1a; stroke-width: 2; rx: 10; ry: 10; }
+.diagram-box.gs { stroke: #3b82f6; fill: #0a1929; }
+.diagram-box.gm { stroke: #22c55e; fill: #0a1a0e; }
+.diagram-box.ps { stroke: #f97316; fill: #1a0e00; }
+.diagram-box.ui { stroke: #a855f7; fill: #1a0a2e; }
+.diagram-box.task { stroke: #ef4444; fill: #200a0a; }
+.diagram-box.pc { stroke: #eab308; fill: #1c1400; }
+.diagram-text { fill: #e8e8e8; font-size: 14px; }
+.flow-arrow { stroke-width: 2.5; fill: none; }
+.flow-arrow.gs { stroke: #3b82f6; }
+.flow-arrow.gm { stroke: #22c55e; }
+.flow-arrow.ps { stroke: #f97316; }
+.flow-arrow.ui { stroke: #a855f7; }
+.flow-arrow.task { stroke: #ef4444; }
+.flow-arrow.rpc { stroke: #f97316; stroke-dasharray: 8 6; }
+.flow-arrow.revert { stroke: #ef4444; }
+.diagram-node { transition: filter .18s ease, transform .18s ease; transform-origin: center; }
+.diagram-node:hover, .diagram-node.active { filter: brightness(1.1) drop-shadow(0 0 6px rgba(255,255,255,.15)); }
+.flow-arrow.highlight { stroke-width: 3.4; }
+.tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: #101010;
+  border: 1px solid #333;
+  color: #eee;
+  border-radius: 8px;
+  padding: .35rem .5rem;
+  font-size: .78rem;
+  z-index: 1000;
+  display: none;
+}

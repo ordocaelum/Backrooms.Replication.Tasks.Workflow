@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GameState Authority</title>
+  <link rel="stylesheet" href="shared/style.css" />
+  <link rel="stylesheet" href="shared/layout.css" />
+  <link rel="stylesheet" href="shared/diagrams.css" />
+  <link rel="stylesheet" href="shared/animations.css" />
+</head>
+<body>
+<header class="nav"><div class="nav-inner"><span class="brand">⬛ Backrooms Workflow</span><a href="../index.html">Home</a><a href="workflow-overview.html">Overview</a><a href="section-tasks-flow.html">Section Tasks</a><a href="rpc-call-paths.html">RPC</a><a href="gamestate-authority.html">GameState</a><a href="ui-widget-flow.html">UI</a><a href="quick-reference.html">Quick Ref</a></div></header>
+<main class="container stack">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><strong>GameState Authority</strong></div>
+  <section class="hero fade-in">
+    <h1>GameState as Authoritative Source</h1>
+    <p class="subtitle">Replicated variables, RepNotify setup, and client data flow.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Replicated variable</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>Server write</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#a855f7"></span>Client UI update</div>
+    </div>
+    <div class="diagram"><svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg"><defs><marker id="gs0" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker></defs><rect class="diagram-box gm" x="20" y="80" width="180" height="56"/><text class="diagram-text" x="45" y="112">Server validation</text><rect class="diagram-box gs" x="290" y="80" width="180" height="56"/><text class="diagram-text" x="318" y="112">GS variable write</text><rect class="diagram-box ui" x="560" y="80" width="180" height="56"/><text class="diagram-text" x="580" y="112">OnRep -> UI refresh</text><path class="flow-arrow gs" d="M200 108 L290 108" marker-end="url(#gs0)"/><path class="flow-arrow ui" d="M470 108 L560 108" marker-end="url(#gs0)"/></svg></div>
+  </section>
+
+  <section class="card fade-in">
+    <h2>All replicated variables</h2>
+    <div class="table-wrap"><table><thead><tr><th>Variable</th><th>Type</th><th>Role</th></tr></thead><tbody>
+      <tr><td title="Replicated task actor references">ActiveTasksItems</td><td>Array&lt;Task Item Ref&gt;</td><td>Current active task actors</td></tr>
+      <tr><td title="Replicated completed task IDs">CompletedTasksOfTaskIds</td><td>Array&lt;Name&gt;</td><td>Global completed IDs</td></tr>
+      <tr><td title="Replicated integer progression">TotalProgress</td><td>Integer</td><td>Overall progression value</td></tr>
+      <tr><td title="Local processing/de-duplication list">LocalProcessedTasks</td><td>Array&lt;Name&gt;</td><td>Sync and duplicate-guard support</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="grid-2 fade-in">
+    <article class="card"><h2>RepNotify setup</h2><div class="diagram"><svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ga" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker></defs><rect class="diagram-box gm" x="20" y="84" width="156" height="58"/><text class="diagram-text" x="45" y="117">Server write</text><rect class="diagram-box gs" x="198" y="84" width="146" height="58"/><text class="diagram-text" x="226" y="117">GS variable</text><rect class="diagram-box gs" x="366" y="84" width="136" height="58"/><text class="diagram-text" x="384" y="117">OnRep event</text><path class="flow-arrow gs" d="M176 113 L198 113" marker-end="url(#ga)"/><path class="flow-arrow gs" d="M344 113 L366 113" marker-end="url(#ga)"/></svg></div></article>
+    <article class="card"><h2>Data flow to clients</h2><div class="diagram"><svg viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg"><defs><marker id="gb" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#a855f7"/></marker></defs><rect class="diagram-box gs" x="38" y="100" width="180" height="58"/><text class="diagram-text" x="77" y="134">BP_GS_Gameplay</text><rect class="diagram-box ui" x="302" y="46" width="180" height="58"/><text class="diagram-text" x="343" y="80">WBP_Inventory</text><rect class="diagram-box ui" x="302" y="154" width="180" height="58"/><text class="diagram-text" x="350" y="188">WBP_TaskRow</text><path class="flow-arrow ui" d="M218 118 L302 75" marker-end="url(#gb)"/><path class="flow-arrow ui" d="M218 140 L302 183" marker-end="url(#gb)"/></svg></div></article>
+  </section>
+
+  <section class="grid-2 fade-in">
+    <article class="card"><h2>Code callout</h2><div class="code-card"><pre>GS replicated data:
+- ActiveTasksItems
+- CompletedTasksOfTaskIds
+- TotalProgress
+
+OnRep -> widget refresh</pre></div></article>
+    <article class="card"><h2>Variable migration table</h2><div class="table-wrap"><table><thead><tr><th>Old source</th><th>New source</th><th>Why</th></tr></thead><tbody><tr><td>PlayerState task data</td><td>GameState task data</td><td>Shared replication authority</td></tr><tr><td>Widget cast to BP_PS_Gameplay</td><td>Widget cast to BP_GS_Gameplay</td><td>Consistent cross-client reads</td></tr><tr><td>Client-side assumptions</td><td>OnRep-driven refresh</td><td>Server-authored correctness</td></tr></tbody></table></div></article>
+  </section>
+</main>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>

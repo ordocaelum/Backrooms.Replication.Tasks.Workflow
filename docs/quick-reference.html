@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Quick Reference</title>
+  <link rel="stylesheet" href="shared/style.css" />
+  <link rel="stylesheet" href="shared/layout.css" />
+  <link rel="stylesheet" href="shared/diagrams.css" />
+  <link rel="stylesheet" href="shared/animations.css" />
+</head>
+<body>
+<header class="nav"><div class="nav-inner"><span class="brand">⬛ Backrooms Workflow</span><a href="../index.html">Home</a><a href="workflow-overview.html">Overview</a><a href="section-tasks-flow.html">Section Tasks</a><a href="rpc-call-paths.html">RPC</a><a href="gamestate-authority.html">GameState</a><a href="ui-widget-flow.html">UI</a><a href="quick-reference.html">Quick Ref</a></div></header>
+<main class="container stack">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><strong>Quick Reference</strong></div>
+  <section class="hero fade-in">
+    <h1>Quick Reference</h1>
+    <p class="subtitle">Blueprint summary, variable lookup, RPC links, migration checklist.</p>
+    <input id="search" type="search" placeholder="Search blueprints, variables, or RPC names" />
+    <div class="diagram" style="margin-top:.8rem;"><svg viewBox="0 0 760 170" xmlns="http://www.w3.org/2000/svg"><defs><marker id="qr0" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker></defs><rect class="diagram-box gs" x="20" y="56" width="200" height="56"/><text class="diagram-text" x="46" y="88">Blueprints + Variables</text><rect class="diagram-box ps" x="280" y="56" width="200" height="56"/><text class="diagram-text" x="331" y="88">RPC Paths</text><rect class="diagram-box ui" x="540" y="56" width="200" height="56"/><text class="diagram-text" x="583" y="88">Migration Checks</text><path class="flow-arrow gs" d="M220 84 L280 84" marker-end="url(#qr0)"/><path class="flow-arrow ui" d="M480 84 L540 84" marker-end="url(#qr0)"/></svg></div>
+  </section>
+
+  <section id="blueprints" class="card fade-in">
+    <h2>Blueprint Summary (sortable)</h2>
+    <div class="table-wrap"><table id="bp-table"><thead><tr><th data-sort="0">Blueprint</th><th data-sort="1">Role</th><th data-sort="2">Type</th></tr></thead><tbody>
+      <tr><td>BP_GS_Gameplay</td><td>Authoritative replicated task state</td><td>GameState</td></tr>
+      <tr><td>BP_GM_Gameplay</td><td>Server validation and progression control</td><td>GameMode</td></tr>
+      <tr><td>BP_PS_Gameplay</td><td>Client-to-server RPC endpoint</td><td>PlayerState</td></tr>
+      <tr><td>BP_Task_Item_Base</td><td>Task interaction actor</td><td>Actor</td></tr>
+      <tr><td>WBP_Inventory</td><td>Task list refresh widget</td><td>Widget</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section id="variables" class="card fade-in">
+    <h2>Variable Lookup</h2>
+    <ul>
+      <li><strong>ActiveTasksItems</strong> — active task actor refs</li>
+      <li><strong>CompletedTasksOfTaskIds</strong> — completed task IDs</li>
+      <li><strong>TotalProgress</strong> — aggregate progress counter</li>
+      <li><strong>CompletedTaskCount / RequiredTaskCount</strong> — section completion gate</li>
+    </ul>
+  </section>
+
+  <section id="rpc" class="grid-2 fade-in">
+    <article class="card"><h2>RPC Quick Links</h2><p><a href="rpc-call-paths.html">Server_ReportTaskCompleted flow</a><br><a href="rpc-call-paths.html">RevertTaskProgress_RPC flow</a><br><a href="section-tasks-flow.html">Section pickup decision flow</a></p></article>
+    <article class="card"><h2>Migration Checklist</h2><ul><li>Cast widgets to GameState instead of PlayerState</li><li>Use replicated GS vars for UI rendering</li><li>Keep section lock check with existing GM counters</li><li>Revert only when section is not complete</li></ul></article>
+  </section>
+
+  <section class="card fade-in">
+    <h2>Code Snippet Library</h2>
+    <div class="grid-2">
+      <div class="code-card"><pre>// Completion path
+PS.Server_ReportTaskCompleted(TaskID)
+GM.OnTaskCompleted(TaskID)
+GS.Replicate()</pre></div>
+      <div class="code-card"><pre>// Revert gate
+if (CompletedTaskCount < RequiredTaskCount)
+    RevertTaskProgress_RPC(TaskID)</pre></div>
+    </div>
+  </section>
+
+  <section class="card fade-in">
+    <h2>Common Issues + Solutions</h2>
+    <div class="table-wrap"><table><thead><tr><th>Issue</th><th>Likely Cause</th><th>Fix</th></tr></thead><tbody><tr><td>Task row stale</td><td>Missing OnRep refresh bind</td><td>Bind widget refresh to replicated updates</td></tr><tr><td>Task incorrectly reverts</td><td>Gate check skipped</td><td>Apply <code>CompletedTaskCount &lt; RequiredTaskCount</code></td></tr><tr><td>Mismatched completion state</td><td>Client-only writes</td><td>Write state through server authority path</td></tr></tbody></table></div>
+  </section>
+</main>
+<script>
+const searchInput = document.getElementById('search');
+const sections = document.querySelectorAll('section.card, section.grid-2');
+
+function applySearchFilter() {
+  const query = searchInput.value.toLowerCase();
+  sections.forEach(section => {
+    const isMatch = section.innerText.toLowerCase().includes(query);
+    section.classList.toggle('is-filtered-out', !isMatch);
+  });
+}
+
+searchInput.addEventListener('input', applySearchFilter);
+
+const table = document.getElementById('bp-table');
+
+function sortBlueprintTable(columnIndex, ascending) {
+  const rows = [...table.tBodies[0].rows];
+  rows.sort((rowA, rowB) => {
+    const textA = rowA.cells[columnIndex].innerText;
+    const textB = rowB.cells[columnIndex].innerText;
+    const result = textA.localeCompare(textB);
+    return ascending ? result : -result;
+  });
+  rows.forEach(row => table.tBodies[0].appendChild(row));
+}
+
+document.querySelectorAll('#bp-table th[data-sort]').forEach(header => {
+  let ascending = true;
+  header.addEventListener('click', () => {
+    const columnIndex = Number(header.dataset.sort);
+    sortBlueprintTable(columnIndex, ascending);
+    ascending = !ascending;
+  });
+});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    entry.target.classList.toggle('show', entry.isIntersecting);
+  });
+}, { threshold: .1 });
+
+document.querySelectorAll('.fade-in').forEach(element => io.observe(element));
+</script>
+</body>
+</html>

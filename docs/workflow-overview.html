@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Workflow Overview</title>
+  <link rel="stylesheet" href="shared/style.css" />
+  <link rel="stylesheet" href="shared/layout.css" />
+  <link rel="stylesheet" href="shared/diagrams.css" />
+  <link rel="stylesheet" href="shared/animations.css" />
+</head>
+<body>
+<header class="nav"><div class="nav-inner"><span class="brand">⬛ Backrooms Workflow</span><a href="../index.html">Home</a><a href="workflow-overview.html">Overview</a><a href="section-tasks-flow.html">Section Tasks</a><a href="rpc-call-paths.html">RPC</a><a href="gamestate-authority.html">GameState</a><a href="ui-widget-flow.html">UI</a><a href="quick-reference.html">Quick Ref</a></div></header>
+<main class="container stack">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><strong>Workflow Overview</strong></div>
+  <section class="hero fade-in">
+    <h1>Workflow Overview</h1>
+    <p class="subtitle">System-level replication flow and blueprint responsibilities.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>GameState</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>GameMode</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#f97316"></span>PlayerState/RPC</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#ef4444"></span>Task Item</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#a855f7"></span>UI/Widget</div>
+    </div>
+    <div class="diagram">
+      <svg viewBox="0 0 1100 420" xmlns="http://www.w3.org/2000/svg">
+        <defs><marker id="ov" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker></defs>
+        <rect x="20" y="40" width="520" height="320" fill="none" stroke="#2f3f55" stroke-dasharray="7 6"/><text class="diagram-text" x="30" y="65">Client Boundary</text>
+        <rect x="560" y="40" width="520" height="320" fill="none" stroke="#2f5541" stroke-dasharray="7 6"/><text class="diagram-text" x="570" y="65">Server Boundary</text>
+        <g class="diagram-node" data-flow="a" data-tooltip="In-world task actor"><rect class="diagram-box task" x="50" y="130" width="190" height="72"/><text class="diagram-text" x="72" y="171">BP_Task_Item_Base</text></g>
+        <g class="diagram-node" data-flow="a" data-tooltip="Client RPC endpoint"><rect class="diagram-box ps" x="280" y="130" width="190" height="72"/><text class="diagram-text" x="318" y="171">BP_PS_Gameplay</text></g>
+        <g class="diagram-node" data-flow="a" data-tooltip="Server gameplay authority"><rect class="diagram-box gm" x="600" y="130" width="190" height="72"/><text class="diagram-text" x="640" y="171">BP_GM_Gameplay</text></g>
+        <g class="diagram-node" data-flow="a" data-tooltip="Replicated state authority"><rect class="diagram-box gs" x="840" y="130" width="210" height="72"/><text class="diagram-text" x="875" y="171">BP_GS_Gameplay</text></g>
+        <g class="diagram-node" data-flow="b" data-tooltip="All clients refresh via OnRep"><rect class="diagram-box ui" x="280" y="260" width="190" height="72"/><text class="diagram-text" x="318" y="301">WBP_Inventory</text></g>
+        <path class="flow-arrow gs a" d="M240 166 L280 166" marker-end="url(#ov)"/>
+        <path class="flow-arrow rpc a" d="M470 166 L600 166" marker-end="url(#ov)"/>
+        <path class="flow-arrow gm a" d="M790 166 L840 166" marker-end="url(#ov)"/>
+        <path class="flow-arrow ui b" d="M840 205 C700 270,560 300,470 296" marker-end="url(#ov)"/>
+      </svg>
+    </div>
+  </section>
+
+  <section class="grid-3 fade-in">
+    <article class="card"><span class="badge task">Step 1</span><h3>Client Interaction</h3><p>Player interacts with task item and starts the completion request path.</p></article>
+    <article class="card"><span class="badge ps">Step 2</span><h3>Server RPC + Validation</h3><p>PlayerState forwards to GameMode for authoritative validation.</p></article>
+    <article class="card"><span class="badge gs">Step 3</span><h3>Replicated Update</h3><p>GameState writes replicated updates and widgets refresh through OnRep.</p></article>
+  </section>
+
+  <section class="grid-2 fade-in">
+    <article class="card">
+      <h2>How it works</h2>
+      <div class="code-card"><pre>Client Interact
+ -> PS.Server_ReportTaskCompleted(TaskID)
+ -> GM.OnTaskCompleted(TaskID)
+ -> GS updates replicated state
+ -> OnRep refreshes widgets</pre></div>
+    </article>
+    <article class="card">
+      <h2>Blueprint role cards</h2>
+      <p><span class="badge gs">GameState</span> Replicated authority</p>
+      <p><span class="badge gm">GameMode</span> Server validation</p>
+      <p><span class="badge ps">PlayerState</span> RPC bridge</p>
+      <p><span class="badge task">Task Item</span> In-world trigger</p>
+      <p><span class="badge ui">UI Widget</span> Client refresh</p>
+      <p><span class="badge pc">PlayerController</span> Optional route</p>
+    </article>
+  </section>
+
+  <section class="card fade-in">
+    <h2>Next Steps</h2>
+    <p><a href="section-tasks-flow.html">Section Tasks Flow</a> · <a href="rpc-call-paths.html">RPC Call Paths</a> · <a href="gamestate-authority.html">GameState Authority</a> · <a href="ui-widget-flow.html">UI Widget Flow</a> · <a href="quick-reference.html">Quick Reference</a></p>
+  </section>
+</main>
+<div class="tooltip" id="tooltip"></div>
+<script>
+const tip = document.getElementById('tooltip');
+
+function highlightFlow(flowClass) {
+  document.querySelectorAll('.' + flowClass).forEach(arrow => arrow.classList.add('highlight'));
+}
+
+function clearFlowHighlight() {
+  document.querySelectorAll('.flow-arrow').forEach(arrow => arrow.classList.remove('highlight'));
+}
+
+function showTooltip(event, node) {
+  tip.style.display = 'block';
+  tip.style.left = (event.clientX + 14) + 'px';
+  tip.style.top = (event.clientY + 10) + 'px';
+  tip.textContent = node.dataset.tooltip || '';
+}
+
+function hideTooltip() {
+  tip.style.display = 'none';
+}
+
+document.querySelectorAll('.diagram-node').forEach(node => {
+  node.addEventListener('mouseenter', () => highlightFlow(node.dataset.flow));
+  node.addEventListener('mouseleave', () => {
+    clearFlowHighlight();
+    hideTooltip();
+  });
+  node.addEventListener('mousemove', event => showTooltip(event, node));
+});
+
+const io = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    entry.target.classList.toggle('show', entry.isIntersecting);
+  });
+}, { threshold: .1 });
+
+document.querySelectorAll('.fade-in').forEach(element => io.observe(element));
+</script>
+</body>
+</html>

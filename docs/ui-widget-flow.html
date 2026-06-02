@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>UI Widget Flow</title>
+  <link rel="stylesheet" href="shared/style.css" />
+  <link rel="stylesheet" href="shared/layout.css" />
+  <link rel="stylesheet" href="shared/diagrams.css" />
+  <link rel="stylesheet" href="shared/animations.css" />
+</head>
+<body>
+<header class="nav"><div class="nav-inner"><span class="brand">⬛ Backrooms Workflow</span><a href="../index.html">Home</a><a href="workflow-overview.html">Overview</a><a href="section-tasks-flow.html">Section Tasks</a><a href="rpc-call-paths.html">RPC</a><a href="gamestate-authority.html">GameState</a><a href="ui-widget-flow.html">UI</a><a href="quick-reference.html">Quick Ref</a></div></header>
+<main class="container stack">
+  <div class="breadcrumb"><a href="../index.html">Home</a><span>/</span><strong>UI Widget Flow</strong></div>
+  <section class="hero fade-in">
+    <h1>Widget → GameState Casting &amp; Refresh</h1>
+    <p class="subtitle">WBP_Inventory and task rows consume replicated GameState data.</p>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#a855f7"></span>Widget layer</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>GameState source</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>OnRep trigger</div>
+    </div>
+    <div class="diagram"><svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg"><defs><marker id="ui0" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#a855f7"/></marker></defs><rect class="diagram-box ui" x="20" y="80" width="180" height="56"/><text class="diagram-text" x="38" y="112">WBP_Inventory</text><rect class="diagram-box gs" x="290" y="80" width="180" height="56"/><text class="diagram-text" x="318" y="112">Cast BP_GS_Gameplay</text><rect class="diagram-box ui" x="560" y="80" width="180" height="56"/><text class="diagram-text" x="592" y="112">Refresh rows</text><path class="flow-arrow ui" d="M200 108 L290 108" marker-end="url(#ui0)"/><path class="flow-arrow ui" d="M470 108 L560 108" marker-end="url(#ui0)"/></svg></div>
+  </section>
+
+  <section class="grid-2 fade-in">
+    <article class="card"><h2>Widget casting flow</h2><div class="diagram"><svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg"><defs><marker id="u1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#a855f7"/></marker></defs><rect class="diagram-box ui" x="24" y="114" width="170" height="58"/><text class="diagram-text" x="41" y="148">WBP_Inventory</text><rect class="diagram-box gs" x="214" y="114" width="170" height="58"/><text class="diagram-text" x="250" y="148">GetGameState</text><rect class="diagram-box gs" x="404" y="114" width="104" height="58"/><text class="diagram-text" x="416" y="148">Cast GS</text><path class="flow-arrow ui" d="M194 142 L214 142" marker-end="url(#u1)"/><path class="flow-arrow ui" d="M384 142 L404 142" marker-end="url(#u1)"/></svg></div></article>
+    <article class="card"><h2>OnRep notification timeline</h2><div class="diagram"><svg viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg"><defs><marker id="u2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#3b82f6"/></marker></defs><line x1="70" y1="30" x2="70" y2="250" stroke="#384152"/><line x1="250" y1="30" x2="250" y2="250" stroke="#384152"/><line x1="430" y1="30" x2="430" y2="250" stroke="#384152"/><text class="diagram-text" x="35" y="20">Server</text><text class="diagram-text" x="214" y="20">RepNotify</text><text class="diagram-text" x="399" y="20">Widget</text><rect class="diagram-box gm" x="18" y="64" width="104" height="48"/><text class="diagram-text" x="37" y="94">GS write</text><rect class="diagram-box gs" x="198" y="126" width="104" height="48"/><text class="diagram-text" x="210" y="156">OnRep</text><rect class="diagram-box ui" x="378" y="188" width="104" height="48"/><text class="diagram-text" x="391" y="218">Refresh UI</text><path class="flow-arrow gs" d="M122 88 L198 144" marker-end="url(#u2)"/><path class="flow-arrow ui" d="M302 152 L378 212" marker-end="url(#u2)"/></svg></div></article>
+  </section>
+
+  <section class="grid-2 fade-in">
+    <article class="card"><h2>Code comparison</h2><div class="code-card"><pre>OLD: GetPlayerState -> Cast BP_PS_Gameplay
+NEW: GetGameState  -> Cast BP_GS_Gameplay</pre></div></article>
+    <article class="card"><h2>WBP structure</h2><ul><li>WBP_Inventory: root list + refresh orchestrator</li><li>WBP_TaskRow: per-task completion row</li><li>Refresh path triggered by OnRep / replicated changes</li></ul></article>
+  </section>
+</main>
+<script>
+const io=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('show',e.isIntersecting)),{threshold:.1});
+document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
